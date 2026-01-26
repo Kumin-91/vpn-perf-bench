@@ -1,0 +1,61 @@
+services:
+  # OpenVPN 실험 노드
+  openvpn-node:
+    build:
+      context: ./openvpn
+      dockerfile: Dockerfile
+    container_name: openvpn-node
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    volumes:
+      - ./openvpn/data:/etc/vpn-test:ro
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "1194:1194/udp"
+    networks:
+      - vpn-net
+
+  # Wireguard 실험 노드
+  wireguard-node:
+    build:
+      context: ./wireguard
+      dockerfile: Dockerfile
+    container_name: wireguard-node
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    volumes:
+      - ./wireguard/data:/etc/vpn-test:ro
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    ports:
+      - "51820:51820/udp"
+    networks:
+      - vpn-net
+
+  # 정보 수집용 Metricbeat 노드
+  metricbeat-node:
+    image: docker.elastic.co/beats/metricbeat:8.19.3
+    container_name: metricbeat-node
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    environment:
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTS}
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    network_mode: host
+    depends_on:
+      - openvpn-node
+      - wireguard-node
+
+networks:
+  vpn-net:
+    driver: bridge

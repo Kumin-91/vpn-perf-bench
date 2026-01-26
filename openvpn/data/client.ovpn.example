@@ -1,0 +1,20 @@
+client
+dev tun
+proto udp
+remote aoimiu.com 1194
+resolv-retry infinite
+nobind
+
+# 인증서 및 키 경로
+ca   /home/ec2-user/openvpn/ca.crt
+cert /home/ec2-user/openvpn/client1.crt
+key  /home/ec2-user/openvpn//client1.key
+tls-auth /home/ec2-user/openvpn/ta.key 1
+
+# 암호화 설정 (서버와 일치 필수)
+cipher AES-256-GCM
+auth SHA256
+
+# SSH 접속 유지를 위한 라우팅 (VPN 대역만 터널링)
+route 10.8.0.0 255.255.255.0
+verb 3

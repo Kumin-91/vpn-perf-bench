@@ -1,0 +1,15 @@
+[Interface]
+# 서버의 개인키 (server_private.key 내용)
+PrivateKey = <SERVER_PRIVATE_KEY>
+Address = 10.0.0.1/24
+ListenPort = 51820
+# VPN 패킷을 외부망으로 중계하기 위한 NAT 및 포워딩 설정
+# 주의: eth0는 컨테이너의 기본 네트워크 인터페이스 명칭에 따라 달라질 수 있음
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+MTU = 1420
+
+[Peer]
+# 클라이언트의 공개키 (client_public.key 내용)
+PublicKey = <CLIENT_PUBLIC_KEY>
+AllowedIPs = 10.0.0.2/32

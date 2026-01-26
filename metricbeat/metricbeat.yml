@@ -1,0 +1,37 @@
+metricbeat.modules:
+  - module: docker
+    metricsets:
+      - container
+      - cpu
+      - memory
+      - network
+    period: 10s
+    hosts: ["unix:///var/run/docker.sock"]
+    enabled: true
+    containers.ids: []
+
+# 전역 설정
+processors:
+  - add_docker_metadata: ~
+  - drop_event:
+      when:
+        not:
+          or:
+            - contains:
+                container.name: "openvpn-node"
+            - contains:
+                container.name: "wireguard-node"
+
+# 출력 설정
+output.elasticsearch:
+  hosts: ["${ELASTICSEARCH_HOSTS}"]
+  username: "${ELASTICSEARCH_USERNAME}"
+  password: "${ELASTICSEARCH_PASSWORD}"
+  ssl.verification_mode: none
+  index: "vpn-metrics-%{[agent.version]}-%{+yyyy.MM.dd}"
+
+# 템플릿 설정
+setup.template.name: "vpn-metrics"
+setup.template.pattern: "vpn-metrics-*"
+setup.ilm.enabled: false
+setup.pack.enabled: false

@@ -1,0 +1,16 @@
+[Interface]
+# 클라이언트의 개인키 (client_private.key 내용)
+PrivateKey = <CLIENT_PRIVATE_KEY>
+# 클라이언트가 사용할 내부 IP
+Address = 10.0.0.2/24
+MTU = 1420
+
+[Peer]
+# 서버의 공개키 (server_public.key 내용)
+PublicKey = <SERVER_PUBLIC_KEY>
+# 서버의 실제 공인 IP 주소와 포트
+Endpoint = <PUBLIC_IP_OR_DOMAIN>:51820
+# 터널을 통해 통신할 IP 대역 (VPN 내부망 통신만 허용하여 SSH 접속 유지)
+AllowedIPs = 10.0.0.0/24
+# NAT 환경에서 연결 상태를 유지하기 위한 패킷 전송 간격 (초)
+PersistentKeepalive = 25

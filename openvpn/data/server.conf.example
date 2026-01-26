@@ -1,0 +1,28 @@
+dev tun
+proto udp
+port 1194
+
+# 인증서 및 키 경로 설정
+ca   /etc/vpn-test/ca.crt
+cert /etc/vpn-test/server.crt
+key  /etc/vpn-test/server.key
+dh   /etc/vpn-test/dh.pem
+tls-auth /etc/vpn-test/ta.key 0
+    
+# 네트워크 대역
+server 10.8.0.0 255.255.255.0
+topology subnet
+
+# 암호화 알고리즘 (WireGuard와 동등한 수준으로 설정)
+cipher AES-256-GCM
+auth SHA256
+
+# 연결 유지 및 성능 최적화
+keepalive 10 60
+persist-key
+persist-tun
+verb 3
+
+# MTU 설정
+tun-mtu 1420
+mssfix 1380
